@@ -3,11 +3,10 @@ package resenas.resena.controller;
 
 
 
-import com.proyecto.notas.dto.ApiResponse;
-import com.proyecto.notas.dto.ReseñaDto;
-import com.proyecto.notas.service.ResenaService;
-import com.proyecto.notas.service.AuthService;
+import resenas.resena.*;
+import resenas.resena.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,94 +23,94 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/v1/api/reseñas")
 @RequiredArgsConstructor
-public class ReseñasController {
+public class ReseñasController<ReseñaDto> {
 
 
 
 
 
-    private final NotasService service;
+    private final ReseñasService service;
     private final AuthService authService;
-    private static final Logger logger = LoggerFactory.getLogger(NotasController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReseñasController.class);
 
     @GetMapping("/list")
-    @Operation(summary = "Listado de notas", description = "Permite listar todas las notas existentes (Requiere Token JWT)")
-    public ResponseEntity<ApiResponse<List<NotasDto>>> listar(@RequestHeader("Authorization") String authHeader) {
+    @Operation(summary = "Listado de reseñas", description = "Permite listar todas las reseñas existentes (Requiere Token JWT)")
+    public ResponseEntity<ApiResponse<List<ReseñaDto>>> listar(@RequestHeader("Authorization") String authHeader) {
         
         String token = authHeader.replace("Bearer ", "");
         ApiResponse<String> validationResponse = authService.validateToken(token);
 
         if (validationResponse == null || validationResponse.getCode() != 200) {
-            ApiResponse<List<NotasDto>> errorResponse = 
+            ApiResponse<List<ReseñaDto>> errorResponse = 
                     new ApiResponse<>(401, "Token inválido o expirado", null);
             return ResponseEntity.status(401).body(errorResponse);
         }
 
         try {
-            List<NotasDto> lista = service.listarTodas();
-            ApiResponse<List<NotasDto>> response = new ApiResponse<>(200, "Listado de notas obtenido con éxito", lista);
+            List<ReseñaDto> lista = service.listarTodas();
+            ApiResponse<List<ReseñaDto>> response = new ApiResponse<>(200, "Listado de reseñas obtenido con éxito", lista);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            logger.error("Error al listar las notas: {}", e.getMessage());
-            ApiResponse<List<NotasDto>> response = new ApiResponse<>(500, "Error al listar las notas: " + e.getMessage(), null);
+            logger.error("Error al listar las reseñas: {}", e.getMessage());
+            ApiResponse response = new ApiResponse<>(500, "Error al listar las reseñas: " + e.getMessage(), null);
             return ResponseEntity.status(500).body(response);
         }
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar nota por ID", description = "Permite buscar una nota específica mediante su identificador único")
-    public ResponseEntity<ApiResponse<NotasDto>> obtener(@PathVariable Long id) {
+    @Operation(summary = "Buscar reseña por ID", description = "Permite buscar una reseña específica mediante su identificador único")
+    public ResponseEntity<ApiResponse<ReseñaDto>> obtener(@PathVariable Long id) {
         try {
             return service.buscarPorId(id)
-                    .map(nota -> ResponseEntity.ok(new ApiResponse<>(200, "Nota encontrada", nota)))
-                    .orElse(ResponseEntity.status(404).body(new ApiResponse<>(404, "Nota no encontrada", null)));
+                    .map(nota -> ResponseEntity.ok(new ApiResponse<>(200, "Reseña encontrada", nota)))
+                    .orElse(ResponseEntity.status(404).body(new ApiResponse<>(404, "Reseña no encontrada", null)));
         } catch (Exception e) {
-            ApiResponse<NotasDto> response = new ApiResponse<>(500, "Error al obtener la nota: " + e.getMessage(), null);
+            ApiResponse<ReseñaDto> response = new ApiResponse<>(500, "Error al obtener la reseña: " + e.getMessage(), null);
             return ResponseEntity.status(500).body(response);
         }
     }
 
     @PostMapping("/crear")
-    @Operation(summary = "Registrar nueva nota", description = "Permite ingresar una nueva nota al sistema")
-    public ResponseEntity<ApiResponse<NotasDto>> crear(@Valid @RequestBody NotasDto notasDto) {
+    @Operation(summary = "Registrar nueva reseña", description = "Permite ingresar una nueva reseña al sistema")
+    public ResponseEntity<ApiResponse<ReseñaDto>> crear(@Valid @RequestBody ReseñaDto reseñaDto) {
         try {
-            NotasDto creado = service.crearNota(notasDto);
-            ApiResponse<NotasDto> response = new ApiResponse<>(201, "Nota registrada exitosamente", creado);
+            ReseñaDto creado = service.crearReseña(reseñaDto);
+            ApiResponse<ReseñaDto> response = new ApiResponse<>(201, "Reseña registrada exitosamente", creado);
             return ResponseEntity.status(201).body(response);
         } catch (Exception e) {
-            ApiResponse<NotasDto> response = new ApiResponse<>(400, "Error al registrar la nota: " + e.getMessage(), null);
+            ApiResponse<ReseñaDto> response = new ApiResponse<>(400, "Error al registrar la reseña: " + e.getMessage(), null);
             return ResponseEntity.badRequest().body(response);
         }
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar nota", description = "Permite modificar los datos de una nota existente")
-    public ResponseEntity<ApiResponse<NotasDto>> actualizar(@PathVariable Long id, @Valid @RequestBody NotasDto notasDto) {
+    @Operation(summary = "Actualizar reseña", description = "Permite modificar los datos de una reseña existente")
+    public ResponseEntity<ApiResponse<ReseñaDto>> actualizar(@PathVariable Long id, @Valid @RequestBody ReseñaDto reseñaDto) {
         try {
-            NotasDto actualizado = service.actualizar(id, notasDto);
-            return ResponseEntity.ok(new ApiResponse<>(200, "Nota actualizada correctamente", actualizado));
+            ReseñaDto actualizado = service.actualizar(id, reseñaDto);
+            return ResponseEntity.ok(new ApiResponse<>(200, "Reseña actualizada correctamente", actualizado));
         } catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().contains("No se encontró la nota")) {
-                return ResponseEntity.status(404).body(new ApiResponse<>(404, "Nota no encontrada para actualizar", null));
+            if (e.getMessage() != null && e.getMessage().contains("No se encontró la reseña")) {
+                return ResponseEntity.status(404).body(new ApiResponse<>(404, "Reseña no encontrada para actualizar", null));
             }
-            ApiResponse<NotasDto> response = new ApiResponse<>(500, "Error al actualizar la nota: " + e.getMessage(), null);
+            ApiResponse<ReseñaDto> response = new ApiResponse<>(500, "Error al actualizar la reseña: " + e.getMessage(), null);
             return ResponseEntity.status(500).body(response);
         }
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar nota por ID", description = "Permite remover una nota del sistema usando su ID")
+    @Operation(summary = "Eliminar reseña por ID", description = "Permite remover una reseña del sistema usando su ID")
     public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
         try {
             if (service.buscarPorId(id).isPresent()) {
                 service.eliminar(id);
-                ApiResponse<Void> response = new ApiResponse<>(200, "Nota eliminada correctamente", null);
+                ApiResponse<Void> response = new ApiResponse<>(200, "Reseña eliminada correctamente", null);
                 return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(404).body(new ApiResponse<>(404, "Nota no encontrada para eliminar", null));
+                return ResponseEntity.status(404).body(new ApiResponse<>(404, "Reseña no encontrada para eliminar", null));
             }
         } catch (Exception e) {
-            ApiResponse<Void> response = new ApiResponse<>(500, "Error al eliminar la nota: " + e.getMessage(), null);
+            ApiResponse<Void> response = new ApiResponse<>(500, "Error al eliminar la reseña: " + e.getMessage(), null);
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -121,7 +120,7 @@ public class ReseñasController {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
-        ApiResponse<Map<String, String>> response = new ApiResponse<>(400, "Error de validación en los datos de la nota", errors);
+        ApiResponse<Map<String, String>> response = new ApiResponse<>(400, "Error de validación en los datos de la reseña", errors);
         return ResponseEntity.badRequest().body(response);
     }
 }
