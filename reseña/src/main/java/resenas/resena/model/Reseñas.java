@@ -1,4 +1,4 @@
-package main.java.resenas.resena.model;
+package resenas.resena.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notas {
+public class Reseñas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
