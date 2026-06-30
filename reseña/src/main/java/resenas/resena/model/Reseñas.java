@@ -32,4 +32,7 @@ public class Reseñas {
     @DecimalMax(value = "5", message = "5 estrellas es la valoracion maxima")
     @Column(nullable = false)
     private Double valoracion;
+
+    @NotBlank(message = "El comentario es obligatorio")
+    private String comentario;
 }
