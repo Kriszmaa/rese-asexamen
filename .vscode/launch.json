@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ResenaApplication",
+            "request": "launch",
+            "mainClass": "resenas.resena.ResenaApplication",
+            "projectName": ""
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-EurekaserverApplication<eurekaserver>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
